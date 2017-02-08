@@ -37,7 +37,6 @@ function handleError() {
 
 let getNuomiTitle = function(id) {
 	handleError();
-	console.log('ddd');
 	async.parallel([
 		function(callback) {
 			//查询nuomi 
@@ -61,7 +60,7 @@ let getNuomiTitle = function(id) {
 						item.date = new Date();
 						results.push(item);
 					});
-					console.log(results);
+					// console.log(results);
 					//插入到数据库
 					insertTable('cinema', results);
 					// callback();

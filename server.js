@@ -4,10 +4,13 @@ let express = require('express');
 //显示请求信息
 var logger = require('morgan');
 var bodyParser = require("body-parser");
+var cors = require('cors');
 
 //引入文件
 var film = require('./app/crawler/filmPrint');
 var nuomiTitle = require('./app/crawler/getNuomiTitle');
+
+
 
 let app = express();
 var http = require('http').createServer(app);
@@ -18,13 +21,13 @@ let dbConfig = require('./db.json');
 let later = require('later');
 later.date.localTime();
 
-//am  pm 
+//am  pm
 var sched = later.parse.text('at 9:15am every'),
   t = later.setTimeout(function() {
     test();
   }, sched);
 
-
+// test();
 /*
  *每个小时5分钟定义去查询当前电影票价格
  *
@@ -41,17 +44,20 @@ function test() {
 // 更新电影院标题
 // nuomiTitle.getNuomiTitle();
 // 根据标题去爬数据
-// getCine(); 
+// getCine();
+
+
 
 app.set('port', 18000);
 app.use(logger('dev'));
+// app.enable('trust proxy');
 app.use(bodyParser.urlencoded({
   extended: false
 }));
 
 // app.use(cookieParser);
-http.listen(18000, function() {
-  console.log('监听端口：18000');
+http.listen(3001, function() {
+  console.log('监听端口：3001');
 });
 
 
@@ -115,7 +121,21 @@ function delcine(){
 }
 
 
+app.use(cors({
+    origin:['http://www.longfei.com:8083','http://localhost:3000'],
+    methods:['GET','POST'],
+    alloweHeaders:['Conten-Type', 'Authorization']
+}));
 
+
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By",' 3.2.1')
+    res.header("Content-Type", "application/x-www-form-urlencoded");
+    next();
+});
 
 
 
@@ -142,10 +162,10 @@ app.post('/api/getScreeningList', function(req, res) {
 /**
  * [查询所有电影院]
  * @param  {[type]} req  [description]
- * @param  {[type]}             
+ * @param  {[type]}
  * @return {[type]}      [description]
  */
-app.post('/getCineMaList', function(req, res) {
+app.post('/api/getCineMaList', function(req, res) {
   // dbcineQuery.getCineList
   handleError();
   conn.query('select  c.mid,c.address,c.`name`,c.tel  from cinema c',
@@ -169,9 +189,15 @@ app.post('/getCineMaList', function(req, res) {
  */
 app.post('/api/getMovieSiteByid', function(req, res) {
   handleError();
+  console.log(req)
+  // return res.send({
+  //         'code': '0',
+  //         'result': {}
+  //        });
   let sql = 'SELECT distinct c.`name`,count(c.`name`) as value FROM cine c, screenings s WHERE c.cinemaid = ? AND s.cinemaid = c.cinemaid AND s.mid = c.mid group by c.`name` ORDER BY count(c.`name`) ';
-
-  conn.query(sql, req.query.mid,
+  console.log(sql)
+  console.log(req.body.mid)
+  conn.query(sql, req.body.mid,
     function(err, results, fields) {
       if (!err) {
         return res.send({
@@ -185,7 +211,6 @@ app.post('/api/getMovieSiteByid', function(req, res) {
 
 });
 
+
+
 // app.post('')
-
-
-

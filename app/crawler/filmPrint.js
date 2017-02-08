@@ -1,6 +1,10 @@
 //链接：http://sz.nuomi.com/cinema/30d2ec870032758bc26c14af
 "use strict";
-
+/**
+ * 根据 cinemaid(电影院id)获取 电影场次信息和时间保持数据库
+ * by longfei 
+ * @2017-02-05
+ */
 var async = require('async');
 var request = require('request');
 var cheerio = require('cheerio');
@@ -19,33 +23,37 @@ var getfilmPrint = function(cinemaid) {
 		function(callback) {
 			//查询nuomi /cinema/0ed20a15b8209b8e57bfff
 			request({
-				url: 'http://sz.nuomi.com/cinema/' + cinemaid,
+				// url: 'http://sz.nuomi.com/cinema/' + cinemaid,
+				url: 'https://dianying.nuomi.com/cinema/cinemadetail?uid=06a1c038a7f5b6b383a00c73',
 				headers: {
 					'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36'
 				}
 			}, function(err, response, body) {
 				if (body) {
-
+					console.log(body);
 					var $ = cheerio.load(body);
 					var results = [];
-					$('.j-hot-item-wrap .j-img-wrapper').each(function() {
+					console.log($('.title').val());
+					$('.flex-viewport .slides li').each(function(){
 						var item = {};
-						item.mid = $(this).attr('movieid');
-						item.name = $(this).find('img').attr('alt');
+						console.log('1');
+						item.mid = $(this).attr('data-movieid');
+						item.name = $(this).find('.movie-name').val();
 						item.cinemaid = cinemaid;
 						item.date = new Date();
 						results.push(item);
 					});
-					// console.log(results);
+					console.log(results);
 					//插入到数据库
-					insertCine(results);
+					// insertCine(results);
 
 					callback(null, results);
 				}
 			});
 		}
 	], function(err, results) {
-		getPrint(results[0]);
+		// console.log(results)
+		// getPrint(results[0]);
 	});
 };
 
@@ -77,7 +85,7 @@ function insertCine(result) {
  */
 function getPrint(resulePrint) {
 	//需要获取具体的票价和场次
-
+	console.log(resulePrint);
 	//http://sz.nuomi.com/pcindex/main/timetable?cinemaid=30d2ec870032758bc26c14af&mid=9925&needMovieInfo=1&tploption=1&_=1460369526412
 	for (var i = 0; i < resulePrint.length; i++) {
 		// console.log(resulePrint[i]);
