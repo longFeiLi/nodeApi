@@ -7,8 +7,8 @@ var bodyParser = require("body-parser");
 var cors = require('cors');
 
 //引入文件
-var film = require('./app/crawler/filmPrint');
-var nuomiTitle = require('./app/crawler/getNuomiTitle');
+var taobaoCine = require('./app/taobao/cine');
+// var nuomiTitle = require('./app/crawler/getNuomiTitle');
 
 
 
@@ -22,7 +22,7 @@ let later = require('later');
 later.date.localTime();
 
 //am  pm
-var sched = later.parse.text('at 9:15am every'),
+var sched = later.parse.text('at 15:10am every'),
   t = later.setTimeout(function() {
     test();
   }, sched);
@@ -48,7 +48,7 @@ function test() {
 
 
 
-app.set('port', 18000);
+app.set('port', 3001);
 app.use(logger('dev'));
 // app.enable('trust proxy');
 app.use(bodyParser.urlencoded({
@@ -87,23 +87,7 @@ function handleError() {
  * 根据地址获取电影院名字
  */
 function getCine() {
-  handleError();
-  // where c.address like "%民治%"
-  conn.query('select c.mid  from cinema c ',
-    function(err, results, fields) {
-      if (!err) {
-        a(results);
-      } else {
-        throw err;
-      }
-    });
-}
-
-function a(result) {
-  for (let i = 0; i < result.length; i++) {
-    film.getfilmPrint(result[i].mid);
-  }
-  console.log('爬完成功-.-' + result.length);
+  taobaoCine.setCineList();
 }
 
 function delcine(){
@@ -120,9 +104,8 @@ function delcine(){
 
 }
 
-
 app.use(cors({
-    origin:['http://www.longfei.com:8083','http://localhost:3000'],
+    origin:['http://www.lovell.com.cn','http://localhost:3000'],
     methods:['GET','POST'],
     alloweHeaders:['Conten-Type', 'Authorization']
 }));
@@ -189,23 +172,19 @@ app.post('/api/getCineMaList', function(req, res) {
  */
 app.post('/api/getMovieSiteByid', function(req, res) {
   handleError();
-  console.log(req)
-  // return res.send({
-  //         'code': '0',
-  //         'result': {}
-  //        });
   let sql = 'SELECT distinct c.`name`,count(c.`name`) as value FROM cine c, screenings s WHERE c.cinemaid = ? AND s.cinemaid = c.cinemaid AND s.mid = c.mid group by c.`name` ORDER BY count(c.`name`) ';
-  console.log(sql)
-  console.log(req.body.mid)
   conn.query(sql, req.body.mid,
     function(err, results, fields) {
       if (!err) {
         return res.send({
-          'code': '0',
-          'result': results
+          'code': 0,
+          'data': results
         });
       } else {
-        throw err;
+        return res.send({
+          'code': 0,
+          'data': {}
+        });
       }
     });
 

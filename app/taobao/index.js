@@ -62,9 +62,13 @@ const crawlCine = function(i) {
 					item.address = $(this).find('.limit-address').text();
 					item.tel = $(this).find('.middle-p .middle-p-list').eq(1).text().substr(3);
 					let cineurl = $(this).find('.right-buy a').attr("href");
+					let points = $(this).find('.J_miniMap').attr('data-points');
+					// 解析url 
 					item.cineurl = cineurl;
 					item.mid = url.parse(cineurl,true).query.cinemaId;
 					item.date = new Date();
+					// 添加地图
+					item.points = points;
 					results.push(item);
 				})
 				insertTable('cinema', results);

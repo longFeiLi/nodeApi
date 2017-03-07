@@ -133,4 +133,4 @@ async function getCineList(results) {
 	});
 }
 
-setCineList()
+exports.setCineList = setCineList;
