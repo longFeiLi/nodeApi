@@ -7,8 +7,8 @@ var bodyParser = require("body-parser");
 var cors = require('cors');
 
 //引入文件
-var taobaoCine = require('./app/taobao/cine');
-// var nuomiTitle = require('./app/crawler/getNuomiTitle');
+let taobaoCine = require('./app/taobao/cine');
+
 
 
 
@@ -22,7 +22,7 @@ let later = require('later');
 later.date.localTime();
 
 //am  pm
-var sched = later.parse.text('at 15:10am every'),
+var sched = later.parse.text('at 12:00 am every'),
   t = later.setTimeout(function() {
     test();
   }, sched);
@@ -32,17 +32,16 @@ var sched = later.parse.text('at 15:10am every'),
  *每个小时5分钟定义去查询当前电影票价格
  *
  */
-function test() {
+async function test() {
   console.log(new Date());
   console.log('我是每天10点来一遍哦');
   //把数据删掉
   //写方法
   delcine();
-  getCine();
+  await getCine();
 }
 
-// 更新电影院标题
-// nuomiTitle.getNuomiTitle();
+
 // 根据标题去爬数据
 // getCine();
 
@@ -86,10 +85,15 @@ function handleError() {
 /**
  * 根据地址获取电影院名字
  */
-function getCine() {
-  taobaoCine.setCineList();
+async function getCine() {
+  // 获取数据
+  await taobaoCine.setCineList();
 }
 
+/**
+ * 删除电影院列表 和 场次
+ * 
+ */
 function delcine(){
     handleError();
     conn.query('DELETE FROM cine', function (err, result) {
@@ -101,7 +105,6 @@ function delcine(){
       if (err) throw err;
       console.log('deleted ' + result.affectedRows + ' rows');
     });
-
 }
 
 app.use(cors({
@@ -187,9 +190,59 @@ app.post('/api/getMovieSiteByid', function(req, res) {
         });
       }
     });
-
 });
 
+/**
+ * [通过电影 名字 获取电影院电影场次]
+ * @param  {[type]} req    [description]
+ * @param  {[type]} res){ } [description]
+ * @return {[type]}        [description]
+ */
+app.post('/api/getMovieByName', function(req, res) {
+  handleError();
+  let sql = "SELECT c.`name`, s.showtime, s.price FROM cine c, screenings s WHERE s.mid = c.mid AND c.NAME LIKE ? ";
+  conn.query(sql, '%' + req.body.name + '%',
+    function(err, results, fields) {
+      if (!err) {
+        return res.send({
+          'code': 0,
+          'data': results
+        });
+      } else {
+        return res.send({
+          'code': 0,
+          'data': {},
+          'err' : err
+        });
+      }
+    });
+});
+
+/**
+ * [获取电影院电影列表]
+ * @param  {[type]} req    [description]
+ * @param  {[type]} res){ } [description]
+ * @return {[type]}        [description]
+ */
+app.post('/api/getMovieList', function(req, res) {
+  handleError();
+  let sql = "SELECT distinct c.`name`, c.mid FROM cine c, screenings s WHERE s.mid = c.mid";
+  conn.query(sql,
+    function(err, results, fields) {
+      if (!err) {
+        return res.send({
+          'code': 0,
+          'data': results
+        });
+      } else {
+        return res.send({
+          'code': 0,
+          'data': {},
+          'err' : err
+        });
+      }
+    });
+});
 
 
 // app.post('')

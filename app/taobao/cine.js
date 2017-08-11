@@ -9,6 +9,8 @@ const async = require('async');
 const dbConfig = require('../../db.json');
 const mysql = require('mysql');
 
+const tScreenings = require('./screenings');
+
 let conn = mysql.createConnection(dbConfig);
 
 /**
@@ -94,7 +96,6 @@ function insertTable(table, oResult) {
 function setCineList() {
 	handleError();
 	console.log('开始执行抓取电影列表');
-	console.time('series');
 	async.waterfall([
 		function(callback) {
 			//打开数据库查询数据
@@ -114,8 +115,8 @@ function setCineList() {
 			});
 		}
 	], function(err, results) {
-		console.log(results);
 		console.log('执行抓取电影列表结束');
+		tScreenings.setScreeningsList();
 	  console.timeEnd('series');
 	});
 }
@@ -125,7 +126,8 @@ function setCineList() {
  * @return {[type]} [description]
  */
 async function getCineList(results) {
-	for (let i = 1; i < results.length; i++) {
+	console.log(results);
+	for (let i = 0; i < results.length; i++) {
 		await Promise.resolve(cineList(results[i]));
 	};
 	return new Promise((resolve, reject) => {

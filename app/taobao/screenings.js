@@ -44,7 +44,7 @@ function handleError() {
 const cineList = function(res) {
 	return new Promise((resolve, reject) => {
 		request({
-			url: 'http://dianying.taobao.com/cinemaDetailSchedule.htm?showId='+ res.mid+ '&cinemaId='+ res.cinemaid+ '&ts=1486537875527&n_s=new',
+			url: 'http://dianying.taobao.com/cinemaDetailSchedule.htm?showId='+ res.mid+ '&cinemaId='+ res.cinemaid+ '&ts=1502421914633&n_s=new',
 			headers: {
 				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36'
 			}
@@ -101,9 +101,7 @@ function setScreeningsList() {
 			});
 		}
 	], function(err, results) {
-		console.log(results);
-		console.log('执行抓取电影影片排期');
-	  console.timeEnd('series');
+		console.log('执行抓取电影影片排期结束');
 	});
 }
 
@@ -113,7 +111,7 @@ function setScreeningsList() {
  * @return {[type]} [description]
  */
 async function getScreeningsList(results) {
-	for (let i = 1; i < results.length; i++) {
+	for (let i = 0; i < results.length; i++) {
 		await Promise.resolve(cineList(results[i]));
 	};
 	return new Promise((resolve, reject) => {
@@ -142,7 +140,5 @@ function insertScreenings(oResult) {
 
 
 
+exports.setScreeningsList = setScreeningsList;
 
-
-
-setScreeningsList();
