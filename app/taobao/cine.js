@@ -113,12 +113,19 @@ function setCineList() {
 			Promise.resolve(getCineList(results)).then(function(msg){
 			  callback(null, msg);
 			});
+		},
+		function (msg, callback) {
+			// 处理延时问题
+			setTimeout( () => {
+				tScreenings.setScreeningsList();
+			}, 1500);
 		}
 	], function(err, results) {
 		console.log('执行抓取电影列表结束');
-		tScreenings.setScreeningsList();
-	  console.timeEnd('series');
+		console.timeEnd('series');
 	});
+  
+	// 
 }
 
 /**
@@ -126,7 +133,7 @@ function setCineList() {
  * @return {[type]} [description]
  */
 async function getCineList(results) {
-	console.log(results);
+	console.log('results',results.length);
 	for (let i = 0; i < results.length; i++) {
 		await Promise.resolve(cineList(results[i]));
 	};

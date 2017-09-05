@@ -42,9 +42,10 @@ function handleError() {
  * 获取最近电影场次
  */
 const cineList = function(res) {
+	console.log(res);
 	return new Promise((resolve, reject) => {
 		request({
-			url: 'http://dianying.taobao.com/cinemaDetailSchedule.htm?showId='+ res.mid+ '&cinemaId='+ res.cinemaid+ '&ts=1502421914633&n_s=new',
+			url: 'http://dianying.taobao.com/cinemaDetailSchedule.htm?showId='+ res.mid + '&cinemaId='+ res.cinemaid+ '&ts=1502421914633&n_s=new',
 			headers: {
 				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.80 Safari/537.36'
 			}
@@ -125,7 +126,8 @@ async function getScreeningsList(results) {
  * @return {[type]} [description]
  */
 function insertScreenings(oResult) {
-	for (var i = 0; i < oResult.length; i++) {
+	console.log(oResult);
+	for (var i = 1; i < oResult.length; i++) {
 		conn.query('INSERT INTO screenings SET ?', oResult[i], function(err) {
 			if (err) {
 				return conn.rollback(function() {

@@ -22,7 +22,7 @@ let later = require('later');
 later.date.localTime();
 
 //am  pm
-var sched = later.parse.text('at 12:00 am every'),
+var sched = later.parse.text('at 9:00 am every'),
   t = later.setTimeout(function() {
     test();
   }, sched);
@@ -34,17 +34,12 @@ var sched = later.parse.text('at 12:00 am every'),
  */
 async function test() {
   console.log(new Date());
-  console.log('我是每天10点来一遍哦');
+  console.log('我是每天9点来一遍哦');
   //把数据删掉
   //写方法
   delcine();
   await getCine();
 }
-
-
-// 根据标题去爬数据
-// getCine();
-
 
 
 app.set('port', 3001);
@@ -125,18 +120,18 @@ app.all('*', function(req, res, next) {
 
 
 
-//获取所有电影院场次
+//获取电影院场次
 app.post('/api/getScreeningList', function(req, res) {
   // dbcineQuery.getCineList
   handleError();
-  let sql='select distinct s.*,c.name as name from screenings s ,cine c  WHERE  c.cinemaid =s.cinemaid and c.mid= s.mid AND s.cinemaid = ?';
-  conn.query(sql,req.query.mid,
+  let sql ='SELECT DISTINCT s.*, c.name AS name FROM screenings s, cine c WHERE c.cinemaid = s.cinemaid AND c.mid = s.mid and c.name = ? ';
+  conn.query(sql, req.body.name,
     function(err, results, fields) {
       if (!err) {
         //处理数据
         return res.send({
-          'code': '10000',
-          'results': results
+          'code': 0,
+          'data': results
         });
       } else {
         throw err;
